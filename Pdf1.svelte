@@ -11,6 +11,21 @@
   let cMapPacked = true;
   let SEARCH_FOR = "book";
 
+  const GetPage = async (pdfDoc, num, scale) => {
+    pageRendering = true;
+    let pg = await pdfDoc.getPage(num);
+    return pg;
+  };
+
+  async function loadPdf(link) {
+    console.log(link);
+    return await pdfjsLib.getDocument({
+      url: link,
+      cMapUrl: cMapUrl,
+      cMapPacked: cMapPacked
+    }).promise;
+  }
+
   onMount(async () => {
     //pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
     var eventBus = new pdfjsViewer.EventBus();
@@ -43,25 +58,16 @@
 
     eventBus.on("pagesinit", function() {
       // We can use pdfViewer now, e.g. let's change default scale.
-      pdfViewer.currentScaleValue = "page-width";
+      pdfViewer.currentScaleValue = "page-fit"; //page-fit
       // We can try searching for things.
       if (SEARCH_FOR) {
         pdfFindController.executeCommand("find", { query: SEARCH_FOR });
       }
     });
 
-    // Loading document.
-    var loadingTask = pdfjsLib.getDocument({
-      url: url,
-      cMapUrl: cMapUrl,
-      cMapPacked: cMapPacked
-    });
-    loadingTask.promise.then(function(pdfDocument) {
-      // Document loaded, specifying document for the viewer and
-      // the (optional) linkService.
-      pdfViewer.setDocument(pdfDocument);
-
-      pdfLinkService.setDocument(pdfDocument, null);
+    loadPdf(url).then(pdf => {
+      pdfViewer.setDocument(pdf);
+      pdfLinkService.setDocument(pdf, null);
     });
   });
 </script>
