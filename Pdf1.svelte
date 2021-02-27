@@ -28,6 +28,7 @@
     var pdfViewer = new pdfjsViewer.PDFViewer({
       container,
       eventBus,
+      annotationLayerFactory: new pdfjsViewer.DefaultAnnotationLayerFactory(),
       linkService: pdfLinkService,
       findController: pdfFindController,
       noPageBorder: false
@@ -63,7 +64,7 @@
   #viewerContainer {
     overflow: auto;
     position: absolute;
-    width: 90%;
+    width: 83%;
     height: 100%;
   }
 </style>
