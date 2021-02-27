@@ -9,6 +9,7 @@
 
   let cMapUrl = `//cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/cmaps/`;
   let cMapPacked = true;
+  let SEARCH_FOR = "book";
 
   onMount(async () => {
     //pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -31,7 +32,11 @@
       annotationLayerFactory: new pdfjsViewer.DefaultAnnotationLayerFactory(),
       linkService: pdfLinkService,
       findController: pdfFindController,
-      noPageBorder: false
+      removePageBorders: true,
+      enableWebGL: true,
+      renderer: "svg",
+      enhanceTextSelection: true,
+      textLayerMode: 2
     });
 
     pdfLinkService.setViewer(pdfViewer);
@@ -40,9 +45,9 @@
       // We can use pdfViewer now, e.g. let's change default scale.
       pdfViewer.currentScaleValue = "page-width";
       // We can try searching for things.
-      // if (SEARCH_FOR) {
-      //   pdfFindController.executeCommand("find", { query: SEARCH_FOR });
-      // }
+      if (SEARCH_FOR) {
+        pdfFindController.executeCommand("find", { query: SEARCH_FOR });
+      }
     });
 
     // Loading document.
