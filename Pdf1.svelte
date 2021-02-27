@@ -29,7 +29,8 @@
       container,
       eventBus,
       linkService: pdfLinkService,
-      findController: pdfFindController
+      findController: pdfFindController,
+      noPageBorder: false
     });
 
     pdfLinkService.setViewer(pdfViewer);
@@ -37,7 +38,6 @@
     eventBus.on("pagesinit", function() {
       // We can use pdfViewer now, e.g. let's change default scale.
       pdfViewer.currentScaleValue = "page-width";
-
       // We can try searching for things.
       // if (SEARCH_FOR) {
       //   pdfFindController.executeCommand("find", { query: SEARCH_FOR });
@@ -63,10 +63,10 @@
   #viewerContainer {
     overflow: auto;
     position: absolute;
-    width: 100%;
+    width: 90%;
     height: 100%;
   }
 </style>
-<div id="viewerContainer">
+<div class="w-full" id="viewerContainer">
   <div id="viewer" class="pdfViewer" />
 </div>
