@@ -4,6 +4,7 @@
   import "pdfjs-dist/web/pdf_viewer.css";
   import * as pdfjsViewer from "pdfjs-dist/web/pdf_viewer";
   import { onMount } from "svelte";
+  import Header from "./Header.svelte";
 
   export let url;
 
@@ -58,7 +59,7 @@
 
     eventBus.on("pagesinit", function() {
       // We can use pdfViewer now, e.g. let's change default scale.
-      pdfViewer.currentScaleValue = "page-fit"; //page-fit
+      pdfViewer.currentScaleValue = "page-width"; //page-fit
       // We can try searching for things.
       if (SEARCH_FOR) {
         pdfFindController.executeCommand("find", { query: SEARCH_FOR });
@@ -75,10 +76,15 @@
   #viewerContainer {
     overflow: auto;
     position: absolute;
+    top: 10%;
     width: 83%;
-    height: 100%;
+    height: 80%;
   }
 </style>
+
+<div class="flex flex-col w-full overflow-hidden ">
+<Header />
 <div class="w-full" id="viewerContainer">
   <div id="viewer" class="pdfViewer" />
+</div>
 </div>
