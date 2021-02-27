@@ -8,24 +8,73 @@
 
   export let url;
 
+  let pageNumber = 1;
   let cMapUrl = `//cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/cmaps/`;
   let cMapPacked = true;
   let SEARCH_FOR = "book";
-
+  let numPages = 0;
+  let pdfViewer = null;
+  let ScaleValue = 1;
   const GetPage = async (pdfDoc, num, scale) => {
     pageRendering = true;
     let pg = await pdfDoc.getPage(num);
     return pg;
   };
 
-  async function loadPdf(link) {
+  const zoomin = () => {
+    ScaleValue += 0.1;
+    pdfViewer.currentScaleValue = ScaleValue;
+  };
+  const zoomout = () => {
+    ScaleValue -= 0.1;
+    pdfViewer.currentScaleValue = ScaleValue;
+  };
+  const scaledToViewport = (scaled, viewport) => {
+    const { width, height } = viewport;
+
+    if (scaled.x1 === undefined) {
+      throw new Error("You are using old position format, please update");
+    }
+
+    const x1 = (width * scaled.x1) / scaled.width;
+    const y1 = (height * scaled.y1) / scaled.height;
+
+    const x2 = (width * scaled.x2) / scaled.width;
+    const y2 = (height * scaled.y2) / scaled.height;
+
+    return {
+      left: x1,
+      top: y1,
+      width: x2 - x1,
+      height: y2 - y1
+    };
+  };
+  const next = () => {
+    if (pageNumber >= numPages) return;
+    pageNumber++;
+    const pageViewport = pdfViewer.getPageView(pageNumber - 1).viewport;
+
+    pdfViewer.scrollPageIntoView({
+      pageNumber
+    });
+  };
+  const prev = () => {
+    if (pageNumber == 1) return;
+    pageNumber--;
+    const pageViewport = pdfViewer.getPageView(pageNumber - 1).viewport;
+
+    pdfViewer.scrollPageIntoView({
+      pageNumber
+    });
+  };
+  const loadPdf = async link => {
     console.log(link);
     return await pdfjsLib.getDocument({
       url: link,
       cMapUrl: cMapUrl,
       cMapPacked: cMapPacked
     }).promise;
-  }
+  };
 
   onMount(async () => {
     //pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -42,7 +91,7 @@
       linkService: pdfLinkService
     });
 
-    var pdfViewer = new pdfjsViewer.PDFViewer({
+    pdfViewer = new pdfjsViewer.PDFViewer({
       container,
       eventBus,
       annotationLayerFactory: new pdfjsViewer.DefaultAnnotationLayerFactory(),
@@ -55,6 +104,9 @@
       textLayerMode: 2
     });
 
+    window.MyProperty = 12345;
+
+    window.viewer = pdfViewer;
     pdfLinkService.setViewer(pdfViewer);
 
     eventBus.on("pagesinit", function() {
@@ -67,6 +119,7 @@
     });
 
     loadPdf(url).then(pdf => {
+      numPages = pdf.numPages;
       pdfViewer.setDocument(pdf);
       pdfLinkService.setDocument(pdf, null);
     });
@@ -83,7 +136,7 @@
 </style>
 
 <div class="flex flex-col w-full overflow-hidden ">
-<Header />
+<Header  {prev} {next} {zoomin} {zoomout} />
 <div class="w-full" id="viewerContainer">
   <div id="viewer" class="pdfViewer" />
 </div>
